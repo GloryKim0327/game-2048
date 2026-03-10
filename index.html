@@ -72,16 +72,16 @@
             font-size: 22px;
             font-weight: bold;
             color: #fff;
-            transition: transform 0.2s ease;
+            transition: transform 0.3s ease;
         }
         
         .score-value.pop {
-            animation: scorePop 0.3s ease;
+            animation: scorePop 0.4s ease;
         }
         
         @keyframes scorePop {
             0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
+            50% { transform: scale(1.4); }
             100% { transform: scale(1); }
         }
         
@@ -96,17 +96,17 @@
             cursor: pointer;
             margin-bottom: 15px;
             width: 100%;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(143,122,102,0.4);
         }
         
         .new-game-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(143,122,102,0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(143,122,102,0.5);
         }
         
         .new-game-btn:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
         
         .grid-container {
@@ -141,18 +141,40 @@
             justify-content: center;
             align-items: center;
             font-weight: bold;
-            animation: tileAppear 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.15s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+            animation: tileAppear 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
         }
         
         @keyframes tileAppear {
+            0% { 
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+            40% {
+                transform: scale(1.15) rotate(5deg);
+            }
+            70% {
+                transform: scale(0.95) rotate(-2deg);
+            }
+            100% { 
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+        
+        .tile-new {
+            animation: tileNew 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        @keyframes tileNew {
             0% { 
                 transform: scale(0);
                 opacity: 0;
             }
             50% {
-                transform: scale(1.1);
+                transform: scale(1.2);
+                box-shadow: 0 0 20px rgba(255,255,255,0.8);
             }
             100% { 
                 transform: scale(1);
@@ -161,12 +183,13 @@
         }
         
         .tile-merge {
-            animation: tileMerge 0.2s ease;
+            animation: tileMerge 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            z-index: 10;
         }
         
         @keyframes tileMerge {
             0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
+            30% { transform: scale(1.25); box-shadow: 0 0 25px rgba(255,255,255,0.9); }
             100% { transform: scale(1); }
         }
         
@@ -176,12 +199,12 @@
         .tile-16 { background: #f59563; color: #f9f6f2; }
         .tile-32 { background: #f67c5f; color: #f9f6f2; }
         .tile-64 { background: #f65e3b; color: #f9f6f2; }
-        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 28px; box-shadow: 0 0 15px rgba(237,207,114,0.5); }
-        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 28px; box-shadow: 0 0 20px rgba(237,204,97,0.6); }
-        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 28px; box-shadow: 0 0 25px rgba(237,200,80,0.7); }
-        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 24px; box-shadow: 0 0 30px rgba(237,197,63,0.8); }
-        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 24px; box-shadow: 0 0 35px rgba(237,194,46,0.9); }
-        .tile-super { background: #3c3a32; color: #f9f6f2; font-size: 20px; }
+        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 28px; box-shadow: 0 0 20px rgba(237,207,114,0.7); }
+        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 28px; box-shadow: 0 0 25px rgba(237,204,97,0.8); }
+        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 28px; box-shadow: 0 0 30px rgba(237,200,80,0.9); }
+        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 24px; box-shadow: 0 0 35px rgba(237,197,63,1); }
+        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 24px; box-shadow: 0 0 40px rgba(237,194,46,1); }
+        .tile-super { background: #3c3a32; color: #f9f6f2; font-size: 20px; box-shadow: 0 0 30px rgba(60,58,50,0.8); }
         
         .game-over {
             position: absolute;
@@ -189,19 +212,19 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(250,248,239,0.85);
+            background: rgba(250,248,239,0.9);
             border-radius: 16px;
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 100;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
         }
         
         .game-over.show {
             display: flex;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.6s ease;
         }
         
         @keyframes fadeIn {
@@ -214,6 +237,13 @@
             font-size: 36px;
             margin-bottom: 20px;
             font-weight: 700;
+            animation: titleBounce 0.8s ease;
+        }
+        
+        @keyframes titleBounce {
+            0% { transform: translateY(-30px); opacity: 0; }
+            50% { transform: translateY(10px); }
+            100% { transform: translateY(0); opacity: 1; }
         }
         
         .instructions {
@@ -221,7 +251,7 @@
             text-align: center;
             color: #776e65;
             font-size: 13px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         
         .footer {
@@ -270,16 +300,18 @@
         let grid = [];
         let score = 0;
         let best = localStorage.getItem('2048-best') || 0;
+        let prevGrid = null;
         const size = 4;
         
         function initGame() {
             grid = Array(size).fill(null).map(() => Array(size).fill(0));
             score = 0;
+            prevGrid = null;
             document.getElementById('gameOver').classList.remove('show');
             document.getElementById('best').textContent = best;
             addNewTile();
             addNewTile();
-            updateDisplay();
+            updateDisplay(true);
         }
         
         function addNewTile() {
@@ -294,7 +326,7 @@
             grid[i][j] = Math.random() < 0.9 ? 2 : 4;
         }
         
-        function updateDisplay() {
+        function updateDisplay(isNew = false) {
             const container = document.getElementById('grid');
             container.innerHTML = '';
             
@@ -308,12 +340,29 @@
                         const tile = document.createElement('div');
                         tile.className = 'tile tile-' + (value <= 2048 ? value : 'super');
                         tile.textContent = value;
+                        
+                        // 检查是否是新出现的方块
+                        if (isNew || (prevGrid && prevGrid[i][j] === 0)) {
+                            tile.classList.add('tile-new');
+                        }
+                        
+                        // 检查是否是合并的方块
+                        if (prevGrid && !isNew) {
+                            const oldValue = prevGrid[i][j];
+                            if (oldValue > 0 && value > oldValue && value === oldValue * 2) {
+                                tile.classList.add('tile-merge');
+                            }
+                        }
+                        
                         cell.appendChild(tile);
                     }
                     
                     container.appendChild(cell);
                 }
             }
+            
+            // 保存当前状态用于下次比较
+            prevGrid = grid.map(row => [...row]);
             
             const scoreEl = document.getElementById('score');
             scoreEl.textContent = score;
