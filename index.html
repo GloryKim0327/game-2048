@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 经典版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+            width: 100%;
+            max-width: 420px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #776e65;
+        }
+        
+        .score-container {
+            text-align: right;
+        }
+        
+        .score-label {
+            font-size: 12px;
+            color: #776e65;
+            text-transform: uppercase;
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #776e65;
+        }
+        
+        .new-game-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .new-game-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .grid-container {
+            background: #bbada0;
+            border-radius: 10px;
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .grid-cell {
+            background: #cdc1b4;
+            border-radius: 8px;
+            width: 100%;
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            font-weight: bold;
+            transition: all 0.15s ease;
+        }
+        
+        .tile-2 { background: #eee4da; color: #776e65; }
+        .tile-4 { background: #ede0c8; color: #776e65; }
+        .tile-8 { background: #f2b179; color: #fff; }
+        .tile-16 { background: #f59563; color: #fff; }
+        .tile-32 { background: #f67c5f; color: #fff; }
+        .tile-64 { background: #f65e3b; color: #fff; }
+        .tile-128 { background: #edcf72; color: #fff; font-size: 24px; }
+        .tile-256 { background: #edcc61; color: #fff; font-size: 24px; }
+        .tile-512 { background: #edc850; color: #fff; font-size: 24px; }
+        .tile-1024 { background: #edc53f; color: #fff; font-size: 20px; }
+        .tile-2048 { background: #edc22e; color: #fff; font-size: 20px; }
+        .tile-super { background: #3c3a32; color: #fff; font-size: 18px; }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.9);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .game-over.show {
+            display: block;
+        }
+        
+        .game-over h2 {
+            color: #776e65;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            text-align: center;
+            color: #776e65;
+            font-size: 14px;
+        }
+        
+        .footer {
+            margin-top: 15px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <div class="title">2048</div>
+            <div class="score-container">
+                <div class="score-label">分数</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+        </div>
+        
+        <button class="new-game-btn" onclick="initGame()">新游戏</button>
+        
+        <div class="grid-container" id="grid"></div>
+        
+        <div class="game-over" id="gameOver">
+            <h2>游戏结束!</h2>
+            <button class="new-game-btn" onclick="initGame()">再玩一次</button>
+        </div>
+        
+        <div class="instructions">
+            <strong>玩法：</strong>使用方向键或滑动屏幕移动方块，相同数字合并
+        </div>
+        
+        <div class="footer">
+            经典 4×4 版本
+        </div>
+    </div>
+    
+    <script>
+        let grid = [];
+        let score = 0;
+        const size = 4;
+        
+        function initGame() {
+            grid = Array(size).fill(null).map(() => Array(size).fill(0));
+            score = 0;
+            document.getElementById('gameOver').classList.remove('show');
+            addNewTile();
+            addNewTile();
+            updateDisplay();
+        }
+        
+        function addNewTile() {
+            const empty = [];
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    if (grid[i][j] === 0) empty.push({i, j});
+                }
+            }
+            if (empty.length === 0) return;
+            const {i, j} = empty[Math.floor(Math.random() * empty.length)];
+            grid[i][j] = Math.random() < 0.9 ? 2 : 4;
+        }
+        
+        function updateDisplay() {
+            const container = document.getElementById('grid');
+            container.innerHTML = '';
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    const value = grid[i][j];
+                    if (value > 0) {
+                        cell.textContent = value;
+                        cell.className += ' tile-' + (value <= 2048 ? value : 'super');
+                    }
+                    container.appendChild(cell);
+                }
+            }
+            document.getElementById('score').textContent = score;
+        }
+        
+        function slide(row) {
+            let arr = row.filter(val => val !== 0);
+            for (let i = 0; i < arr.length - 1; i++) {
+                if (arr[i] === arr[i + 1]) {
+                    arr[i] *= 2;
+                    score += arr[i];
+                    arr[i + 1] = 0;
+                }
+            }
+            arr = arr.filter(val => val !== 0);
+            while (arr.length < size) arr.push(0);
+            return arr;
+        }
+        
+        function moveLeft() {
+            let moved = false;
+            for (let i = 0; i < size; i++) {
+                const old = [...grid[i]];
+                grid[i] = slide(grid[i]);
+                if (old.join(',') !== grid[i].join(',')) moved = true;
+            }
+            return moved;
+        }
+        
+        function moveRight() {
+            let moved = false;
+            for (let i = 0; i < size; i++) {
+                const old = [...grid[i]];
+                grid[i].reverse();
+                grid[i] = slide(grid[i]);
+                grid[i].reverse();
+                if (old.join(',') !== grid[i].join(',')) moved = true;
+            }
+            return moved;
+        }
+        
+        function moveUp() {
+            let moved = false;
+            for (let j = 0; j < size; j++) {
+                const column = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
+                const old = [...column];
+                column.splice(0, 4, ...slide(column));
+                for (let i = 0; i < size; i++) {
+                    grid[i][j] = column[i];
+                }
+                if (old.join(',') !== column.join(',')) moved = true;
+            }
+            return moved;
+        }
+        
+        function moveDown() {
+            let moved = false;
+            for (let j = 0; j < size; j++) {
+                const column = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
+                const old = [...column];
+                column.reverse();
+                column.splice(0, 4, ...slide(column));
+                column.reverse();
+                for (let i = 0; i < size; i++) {
+                    grid[i][j] = column[i];
+                }
+                if (old.join(',') !== column.join(',')) moved = true;
+            }
+            return moved;
+        }
+        
+        function checkGameOver() {
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    if (grid[i][j] === 0) return false;
+                    if (j < size - 1 && grid[i][j] === grid[i][j + 1]) return false;
+                    if (i < size - 1 && grid[i][j] === grid[i + 1][j]) return false;
+                }
+            }
+            return true;
+        }
+        
+        function handleMove(direction) {
+            let moved = false;
+            if (direction === 'left') moved = moveLeft();
+            else if (direction === 'right') moved = moveRight();
+            else if (direction === 'up') moved = moveUp();
+            else if (direction === 'down') moved = moveDown();
+            
+            if (moved) {
+                addNewTile();
+                updateDisplay();
+                if (checkGameOver()) {
+                    document.getElementById('gameOver').classList.add('show');
+                }
+            }
+        }
+        
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') { e.preventDefault(); handleMove('left'); }
+            else if (e.key === 'ArrowRight') { e.preventDefault(); handleMove('right'); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); handleMove('up'); }
+            else if (e.key === 'ArrowDown') { e.preventDefault(); handleMove('down'); }
+        });
+        
+        // 触摸控制
+        let touchStartX, touchStartY;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            if (!touchStartX || !touchStartY) return;
+            const diffX = e.changedTouches[0].clientX - touchStartX;
+            const diffY = e.changedTouches[0].clientY - touchStartY;
+            
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 0) handleMove('right');
+                else handleMove('left');
+            } else {
+                if (diffY > 0) handleMove('down');
+                else handleMove('up');
+            }
+            touchStartX = null;
+            touchStartY = null;
+        });
+        
+        // 开始游戏
+        initGame();
+    </script>
+</body>
+</html>
