@@ -120,11 +120,10 @@
         
         .tile-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 12px;
+            top: 12px;
+            left: 12px;
+            width: calc(100% - 24px);
+            height: calc(100% - 24px);
         }
         
         .tile {
@@ -268,7 +267,7 @@
             <strong>玩法：</strong>使用方向键或滑动屏幕移动方块<br>相同数字合并，达到 2048 获胜
         </div>
         
-        <div class="version">v1.3.0 - 2026-03-10</div>
+        <div class="version">v1.4.0 - 2026-03-10</div>
         
         <div class="footer">
             经典 4×4 版本
@@ -308,9 +307,10 @@
         
         function getTilePosition(i, j) {
             const gap = 12;
-            const cellPercent = 25;
-            const left = j * (cellPercent + (gap / 100) * cellPercent) + gap / 2;
-            const top = i * (cellPercent + (gap / 100) * cellPercent) + gap / 2;
+            const containerGap = 12;
+            const cellSize = (100 - 3 * gap) / 4;
+            const left = containerGap + j * (cellSize + gap);
+            const top = containerGap + i * (cellSize + gap);
             return { left: left + '%', top: top + '%' };
         }
         
